@@ -66,9 +66,9 @@ void nonlinear_poisson2d_fem::assemble_stiffness(
 
     std::vector<Triplet<double>> triplets;
     for (auto& element : elements) {
-        Matrix3d Ke = element.element_stiffness_from_operator(nodes) +
-                      element.element_stiffness_from_nonlinear_source(
-                          source_derivative_function, previous_solution);
+        Matrix3d Ke = element.element_stiffness_from_operator(nodes);
+        Ke += element.element_stiffness_from_nonlinear_source(
+            source_derivative_function, previous_solution);
         for (int i = 0; i < 3; i++) {
             int i_node = element.node_indices[i];
             if (nodes[i_node].status == node_status::DIRICHLET_BOUNDARY) {
@@ -95,7 +95,7 @@ void nonlinear_poisson2d_fem::assemble_stiffness(
 void nonlinear_poisson2d_fem::assmeble_rhs_from_operator(
     const VectorXd& previous_solution) {
     global_rhs_from_operator =
-        global_stiffness_from_operator * previous_solution;
+        global_stiffness_from_operator * (-previous_solution);
 }
 
 void nonlinear_poisson2d_fem::assmeble_rhs_from_source(
@@ -148,7 +148,7 @@ void nonlinear_poisson2d_fem::solve() {
 
     VectorXd solution_updates, previous_solution = initial_guess;
 
-    constexpr int MAX_NEWTON_ITERATION = 20;
+    constexpr int MAX_NEWTON_ITERATION = 10;
     for (int newton_iteration = 0; newton_iteration < MAX_NEWTON_ITERATION;
          newton_iteration++) {
         prepare_system_of_equations(previous_solution);
@@ -161,7 +161,7 @@ void nonlinear_poisson2d_fem::solve() {
         double abs_error = global_rhs.norm();
         double rel_error = solution_updates.norm() / previous_solution.norm();
 
-        std::cout << "Newton iteration: " << newton_iteration << "  "
+        std::cout << "Newton iteration: " << newton_iteration+1 << "  "
                   << abs_error << "  " << rel_error << std::endl;
 
         if (rel_error < rel_tol && abs_error < abs_tol) {
