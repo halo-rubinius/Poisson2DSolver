@@ -40,12 +40,10 @@ private:
 
     // 获取顶点坐标
     inline void get_vertices_coordinates(const NodeList& nodes) {
-        _xcoord[0] = nodes[node_indices[0]].x;
-        _ycoord[0] = nodes[node_indices[0]].y;
-        _xcoord[1] = nodes[node_indices[1]].x;
-        _ycoord[1] = nodes[node_indices[1]].y;
-        _xcoord[2] = nodes[node_indices[2]].x;
-        _ycoord[2] = nodes[node_indices[2]].y;
+        for (int i = 0; i < 3; i++) {
+            _xcoord[i] = nodes[node_indices[i]].x;
+            _ycoord[i] = nodes[node_indices[i]].y;
+        }
     }
 
     static double apply_shape_function(const Vector2d& natural_coordinate,

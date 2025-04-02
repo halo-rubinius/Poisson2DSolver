@@ -14,13 +14,11 @@ Matrix3d triangular_linear_element::element_stiffness_from_operator(
 
     double area4 = -1.0 / (4.0 * this->_area);
 
+    Matrix<double, 2, 3> dN;
+    dN << y23, y31, y12, -x23, -x31, -x12;
+
     Matrix3d Ke;  // 单元刚度矩阵
-    Ke(0, 0) = (y23 * y23 + x23 * x23) * area4;
-    Ke(0, 1) = Ke(1, 0) = (y23 * y31 + x23 * x31) * area4;
-    Ke(0, 2) = Ke(2, 0) = (y23 * y12 + x23 * x12) * area4;
-    Ke(1, 1) = (y31 * y31 + x31 * x31) * area4;
-    Ke(1, 2) = Ke(2, 1) = (y31 * y12 + x31 * x12) * area4;
-    Ke(2, 2) = (y12 * y12 + x12 * x12) * area4;
+    Ke = dN.transpose() * dN * area4;
     return Ke;
 }
 
